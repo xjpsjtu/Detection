@@ -8,6 +8,8 @@ import java.util.Set;
 
 public class Handle {
 	public List<Sensor> sensors;
+	public List<Point> points;
+	public int[] d;
 	public double L;
 	public double r;
 	
@@ -35,6 +37,7 @@ public class Handle {
 			sensor.x = x;
 			sensor.y = y;
 			sensor.range = r;
+			sensor.shift = 0;
 			sensors.add(sensor);
 		}
 	}
@@ -51,25 +54,13 @@ public class Handle {
 	public void sortSensor(){
 		Collections.sort(this.sensors);
 	}
-	//寻找Gap,需要传感器按照序号升序!!
-	public List<Gap> findGap(){
-		List<Gap> gaps = new ArrayList<Gap>();
-		for(int i = 0; i < sensors.size() - 1; i++){
-			Sensor sensorLeft = sensors.get(i);
-			Sensor sensorRight = sensors.get(i + 1);
-			if(Math.abs(sensorLeft.getX() - sensorRight.getX()) > 2 * r){
-				Gap gap = new Gap();
-				gap.left = sensorLeft.getRight();
-				gap.right = sensorLeft.getLeft();
-				gaps.add(gap);
-			}
+	public void shiftSensor(){
+		for(int i = 0; i < sensors.size(); i++){
+			int shift = d[i];
+			sensors.get(i).shift = shift;
 		}
-		return gaps;
 	}
-	//寻找overlap
-	public List<Overlap> findOverLap(){
-		int n = sensors.size();
-		List<Overlap> overlaps = new ArrayList<Overlap>();
+	public List<Point> getPoints(){
 		List<Point> points = new ArrayList<Point>();
 		for(int i = 0; i < sensors.size(); i++){
 			Sensor sensor = sensors.get(i);
@@ -85,6 +76,32 @@ public class Handle {
 			points.add(pright);
 		}
 		Collections.sort(points);
+		return points;
+	}
+	//寻找Gap,需要传感器按照序号升序!!
+	public List<Gap> findGap(){
+		List<Gap> gaps = new ArrayList<Gap>();
+		List<Point> points = new ArrayList<Point>();
+		points = getPoints();
+		for(int i = 1; i < points.size(); i++){
+			Point left = points.get(i);
+			Point right = points.get(i+1);
+			if(left.sign == 1 && right.sign == 0){
+				Gap gap = new Gap();
+				gap.left = left.x;
+				gap.right = right.x;
+				gap.size = gap.right - gap.left;
+				gaps.add(gap);
+			}
+		}
+		return gaps;
+	}
+	//寻找overlap
+	public List<Overlap> findOverLap(){
+		int n = sensors.size();
+		List<Overlap> overlaps = new ArrayList<Overlap>();
+		List<Point> points = new ArrayList<Point>();
+		points = getPoints();
 		for(int i = 1; i < points.size() - 1; i++){
 			Point left = points.get(i);
 			Point right = points.get(i+1);
@@ -119,11 +136,112 @@ public class Handle {
 				overlap.right = L;
 			}
 		}
+		for(int i = 0; i < overlaps.size(); i++){
+			Overlap overlap = overlaps.get(i);
+			double left = overlap.getLeft();
+			double right = overlap.getRight();
+			overlap.size = right - left;
+			for(int j = 0; j < sensors.size(); j++){
+				Sensor sensor = new Sensor();
+				double sleft = sensor.getLeft();
+				double sright = sensor.getRight();
+				if(left >= sleft && left <= sright){
+					overlap.addSensor(sensor);
+				}
+			}
+		}
 		return overlaps;
+	}
+	public int calCost(Overlap overlap, Gap gap){
+		int sum = 0;
+		List<Sensor> sensors = new ArrayList<Sensor>();
+		sensors = overlap.getCoverSensor();
+		for(int i = 0; i < sensors.size(); i++){
+			Sensor sensor = sensors.get(i);
+			if(sensor.getRight() <= gap.left || sensor.getLeft() >= gap.right){
+				sum++;
+			}
+		}
+		return sum;
 	}
 	//移动传感器的位置使其能够覆盖区域
 	public void WeakDetection(){
-		
+		int n = sensors.size();
+		int[] d = new int[n];  //the array of sensor shifts
+		for(int i = 0; i < n; i++){
+			d[i] = 0;
+		}
+		sortSensor();
+		List<Overlap> overlaps = new ArrayList<Overlap>();
+		overlaps = findOverLap();
+		int k = overlaps.size();
+		List<Gap> gaps = new ArrayList<Gap>();
+		gaps = findGap();
+		int l = gaps.size();
+		for(int i = 0; i < l; i++){
+			Gap gap = gaps.get(i);
+			while(gap.getSize() != 0){
+				double gleft = gap.getLeft();
+				double gright = gap.getRight();
+				int oleft = -1, oright = -1;
+				for(int j = 0; j < k; j++){
+					Overlap overlap = overlaps.get(j);
+					double right = overlap.getRight();
+					if(right > gleft){
+						oleft = j - 1;
+						break;
+					}
+				}
+				for(int j = k - 1; j > -1; j++){
+					Overlap overlap = overlaps.get(j);
+					double left = overlap.getLeft();
+					if(left < gright){
+						oright = j + 1;
+						break;
+					}
+				}
+				Overlap overlap_left = overlaps.get(oleft);
+				Overlap overlap_right = overlaps.get(oright);
+				int left_cost = calCost(overlap_left, gap);
+				int right_cost = calCost(overlap_right, gap);
+				double c;
+				if(left_cost <= right_cost){
+					if(overlap_left.getSize() < gap.getSize()){
+						c = overlap_left.getSize();
+					}else{
+						c = gap.getSize();
+					}
+					gap.size -= c;
+					overlap_left.size -= c;
+					for(int j = 0; j < sensors.size(); j++){
+						Sensor sensor = sensors.get(j);
+						double sensor_left = sensor.getLeft();
+						double sensor_right = sensor.getRight();
+						if(sensor_left >= overlap_left.getRight() && sensor_right <= gap.getLeft()){
+							d[j] += c;
+						}
+					}
+				}else{
+					if(overlap_right.getSize() < gap.getSize()){
+						c = overlap_right.getSize();
+					}else{
+						c = gap.getSize();
+					}
+					gap.size -= c;
+					overlap_right.size -= c;
+					for(int j = 0; j < sensors.size(); j++){
+						Sensor sensor = sensors.get(j);
+						double sensor_left = sensor.getLeft();
+						double sensor_right = sensor.getRight();
+						if(sensor_left >= gap.right && sensor_right <= overlap_right.getLeft()){
+							d[j] += c;
+						}
+					}
+				}
+
+			}
+		}
+		shiftSensor();
 	}
 	
 	public static void main(String[] args){

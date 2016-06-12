@@ -5,6 +5,7 @@ public class Sensor implements Comparable{
 	public double y;
 	public double range;
 	public int initial;
+	public double shift;
 	
 	public double getX(){
 		return x;
@@ -17,12 +18,18 @@ public class Sensor implements Comparable{
 	}
 	//得到左边界
 	public double getLeft(){
+		x = x + shift;
 		return x - range;
 	}
 	
 	//得到右边界
 	public double getRight(){
+		x = x + shift;
 		return x + range;
+	}
+	//得到传感器的偏移
+	public double getShift(){
+		return shift;
 	}
 	
 	//判断一个点是否在它的范围内
