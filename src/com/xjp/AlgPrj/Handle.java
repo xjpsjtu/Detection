@@ -85,15 +85,38 @@ public class Handle {
 			points.add(pright);
 		}
 		Collections.sort(points);
-		for(int i = 0; i < points.size() - 1; i++){
+		for(int i = 1; i < points.size() - 1; i++){
 			Point left = points.get(i);
 			Point right = points.get(i+1);
-			if(left.sign == 1 && right.sign == 0)continue;
+			if(left.sign == 1 && right.sign == 0){
+				i++;
+				continue;
+			}
 			else{
 				Overlap overlap = new Overlap();
 				overlap.left = left.x;
 				overlap.right = right.x;
 				overlaps.add(overlap);
+			}
+		}
+		for(int i = 0; i < overlaps.size(); i++){
+			Overlap overlap = overlaps.get(i);
+			if(overlap.left <=0 ){
+				Overlap ov = new Overlap();
+				ov.left = overlap.left;
+				ov.right = 0;
+				overlaps.add(ov);
+				overlap.left = 0;
+			}
+		}
+		for(int i = 0; i < overlaps.size(); i++){
+			Overlap overlap = overlaps.get(i);
+			if(overlap.right >= L){
+				Overlap ov = new Overlap();
+				ov.right = overlap.right;
+				ov.left = L;
+				overlaps.add(ov);
+				overlap.right = L;
 			}
 		}
 		return overlaps;
