@@ -6,6 +6,8 @@ public class Overlap {
 	public double left;
 	public double right;
 	public double size; 
+	public Sensor left_sensor;
+	public Sensor right_sensor;
 	public List<Sensor> coverSensors;
 	
 	public double getLeft(){
