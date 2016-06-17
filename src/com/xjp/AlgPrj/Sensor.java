@@ -16,29 +16,27 @@ public class Sensor implements Comparable{
 	public double getRange(){
 		return range;
 	}
-	//得到左边界
+	//get the left bound of the sensor
 	public double getLeft(){
-		x = x + shift;
 		return x - range;
 	}
 	
-	//得到右边界
+	//get the right bound of the sensor
 	public double getRight(){
-		x = x + shift;
 		return x + range;
 	}
-	//得到传感器的偏移
+	//Get the shift of this sensor
 	public double getShift(){
 		return shift;
 	}
 	
-	//判断一个点是否在它的范围内
+	//test if (x,y) is in the range of the sensor
 	public boolean isInRange(double x, double y){
 		double dis = (this.x - x) * (this.x - x) + (this.y - y) * (this.y - y);
 		if(dis <= range * range)return true;
 		else return false;
 	}
-	//对传感器的横坐标排序
+	//compare the sensors based on their x value
 	@Override
 	public int compareTo(Object o) {
 		// TODO Auto-generated method stub

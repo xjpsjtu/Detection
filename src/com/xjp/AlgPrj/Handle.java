@@ -1,38 +1,42 @@
 package com.xjp.AlgPrj;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 public class Handle {
 	public List<Sensor> sensors;
 	public List<Point> points;
-	public int[] d;
+	public int[] d;  //the shift array of the sensors
 	public double L;
 	public double r;
 	
-	//设置区域总长度
+	//set the total length of the boundary
 	public void setLength(double L){
 		this.L = L;
 	}
-	//设置传感器的半径
+	//set the sensing range of each sensor
 	public void setRange(double r){
 		this.r = r;
 	}
-	//获取当前传感器的数量
+	//get the total number of sensors
 	public int getNumOfSensor(){
 		return sensors.size();
 	}
-	//创建传感器
+	//create several sensors
 	public void createSensor(){
-		int n = (int)(L/r) + 5;
+		int n = (int)(L/r)+2;
 		sensors = new ArrayList<Sensor>();
 		for(int i = 0; i < n; i++){
 			Sensor sensor = new Sensor();
-			double x = Math.random() * (2 * r + L)  - r;
-			double y = Math.random() * (5 * r);
+			double x = Math.random() * (1.5 * r + L)  - 0.5*r;
+			double y = Math.random() * (10 * r);
 			sensor = new Sensor();
 			sensor.x = x;
 			sensor.y = y;
@@ -41,16 +45,27 @@ public class Handle {
 			sensors.add(sensor);
 		}
 	}
-	//输出传感器
+	//print the information of each sensor
 	public void print(){
 		for(int i = 0; i < sensors.size(); i++){
 			Sensor sensor = sensors.get(i);
-			System.out.println("=============第   " + (i+1) +" 个传感器的信息=============");
-			System.out.println("原点为：   (" + sensor.x + "," + sensor.y + ")");
-			System.out.println("半径为：   " + sensor.range);
+			System.out.println("=============sensor  " + (i+1) +" =============");
+			System.out.println("location:  (" + sensor.x + "," + sensor.y + ")");
+			System.out.println("sensing range:   " + sensor.range);
 		}
 	}
-	//对传感器排序
+	public void draw(){
+		JFrame frame = new JFrame("Sensor");
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setLayout(null);
+		SensorPanel spanel = new SensorPanel();
+		spanel.setBounds(0, 0, 1500, 1500);
+		spanel.addSensor(sensors);
+		frame.add(spanel);
+		frame.setSize(1500, 1500);
+		frame.setVisible(true);
+	}
+	//sort all the sensors
 	public void sortSensor(){
 		Collections.sort(this.sensors);
 	}
@@ -58,6 +73,7 @@ public class Handle {
 		for(int i = 0; i < sensors.size(); i++){
 			int shift = d[i];
 			sensors.get(i).shift = shift;
+			sensors.get(i).x += shift;
 		}
 	}
 	public List<Point> getPoints(){
@@ -78,7 +94,7 @@ public class Handle {
 		Collections.sort(points);
 		return points;
 	}
-	//寻找Gap,需要传感器按照序号升序!!
+	//find all gaps!!
 	public List<Gap> findGap(){
 		List<Gap> gaps = new ArrayList<Gap>();
 		List<Point> points = new ArrayList<Point>();
@@ -96,7 +112,7 @@ public class Handle {
 		}
 		return gaps;
 	}
-	//寻找overlap
+	//find all overlaps!!
 	public List<Overlap> findOverLap(){
 		int n = sensors.size();
 		List<Overlap> overlaps = new ArrayList<Overlap>();
@@ -164,7 +180,7 @@ public class Handle {
 		}
 		return sum;
 	}
-	//移动传感器的位置使其能够覆盖区域
+	
 	public void WeakDetection(){
 		int n = sensors.size();
 		int[] d = new int[n];  //the array of sensor shifts
@@ -246,11 +262,26 @@ public class Handle {
 	
 	public static void main(String[] args){
 		Handle handle = new Handle();
-		handle.L = 20;
-		handle.r = 5;
+		handle.L = 1200;
+		handle.r = 60;
 		handle.createSensor();
-		handle.print();
-		Collections.sort(handle.sensors);
-		handle.print();
+		handle.WeakDetection();
+		handle.draw();
+	}
+}
+class SensorPanel extends JPanel{
+	List<Sensor> sensors;
+	public void addSensor(List<Sensor> sensors){
+		this.sensors = sensors;
+	}
+	public void paint(Graphics g){
+		g.drawLine(150, 850, 1350, 850);
+		for(int i = 0; i < sensors.size(); i++){
+			Sensor sensor = sensors.get(i);
+			int x = (int)sensor.getX();
+			int y = (int)sensor.getY();
+			int r = (int)sensor.getRange();
+			g.drawOval(x, y, 2 * r, 2 * r);
+		}
 	}
 }

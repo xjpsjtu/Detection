@@ -2,7 +2,7 @@ package com.xjp.AlgPrj;
 
 public class Point implements Comparable{
 	public double x;
-	int sign; //sign=0代表起始端点，sign=1代表终点
+	int sign; //sign=0 indicates the left point, otherwise sign=1锟斤拷锟斤拷锟秸碉拷
 	@Override
 	public int compareTo(Object o) {
 		// TODO Auto-generated method stub
