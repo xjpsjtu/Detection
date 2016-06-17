@@ -1,5 +1,6 @@
 package com.xjp.AlgPrj;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,8 +36,8 @@ public class Handle {
 		sensors = new ArrayList<Sensor>();
 		for(int i = 0; i < n; i++){
 			Sensor sensor = new Sensor();
-			double x = Math.random() * (1.5 * r + L)  - 0.5*r;
-			double y = Math.random() * (10 * r);
+			double x = Math.random() * (L - 2 * r) +  r;
+			double y = Math.random() * 800;
 			sensor = new Sensor();
 			sensor.x = x;
 			sensor.y = y;
@@ -61,6 +62,7 @@ public class Handle {
 		SensorPanel spanel = new SensorPanel();
 		spanel.setBounds(0, 0, 1500, 1500);
 		spanel.addSensor(sensors);
+		spanel.addPoint(getPoints());
 		frame.add(spanel);
 		frame.setSize(1500, 1500);
 		frame.setVisible(true);
@@ -99,14 +101,26 @@ public class Handle {
 		List<Gap> gaps = new ArrayList<Gap>();
 		List<Point> points = new ArrayList<Point>();
 		points = getPoints();
-		for(int i = 1; i < points.size(); i++){
-			Point left = points.get(i);
-			Point right = points.get(i+1);
-			if(left.sign == 1 && right.sign == 0){
+		sortSensor();
+//		for(int i = 1; i < points.size() - 1; i++){
+//			Point left = points.get(i);
+//			Point right = points.get(i+1);
+//			if(left.sign == 1 && right.sign == 0){
+//				Gap gap = new Gap();
+//				gap.left = left.x;
+//				gap.right = right.x;
+//				gap.size = gap.right - gap.left;
+//				gaps.add(gap);
+//			}
+//		}
+		for(int i = 0; i < sensors.size() - 1; i++){
+			Sensor left_sensor = sensors.get(i);
+			Sensor right_sensor = sensors.get(i+1);
+			if(!left_sensor.isOverlap(right_sensor)){
 				Gap gap = new Gap();
-				gap.left = left.x;
-				gap.right = right.x;
-				gap.size = gap.right - gap.left;
+				gap.left = left_sensor.getRight();
+				gap.right = right_sensor.getLeft();
+				gap.size = Math.abs(gap.right - gap.left);
 				gaps.add(gap);
 			}
 		}
@@ -265,23 +279,51 @@ public class Handle {
 		handle.L = 1200;
 		handle.r = 60;
 		handle.createSensor();
-		handle.WeakDetection();
+		System.out.println(handle.sensors.size());
 		handle.draw();
+//		List<Point> points = handle.getPoints();
+//		System.out.println(points.size());
+//		for(int i = 0; i < points.size(); i++){
+//			System.out.println(points.get(i).x);
+//		}
+		List<Gap> gaps = handle.findGap();
+		for(int i = 0; i < gaps.size(); i++){
+			System.out.println(gaps.get(i).left + " , " + gaps.get(i).right);
+		}
+		System.out.println(gaps.size());
 	}
 }
 class SensorPanel extends JPanel{
 	List<Sensor> sensors;
+	List<Point> points;
+	public void addPoint(List<Point> points){
+		this.points = points;
+	}
 	public void addSensor(List<Sensor> sensors){
 		this.sensors = sensors;
 	}
 	public void paint(Graphics g){
-		g.drawLine(150, 850, 1350, 850);
+		g.drawLine(0, 850, 1500, 850);
 		for(int i = 0; i < sensors.size(); i++){
 			Sensor sensor = sensors.get(i);
 			int x = (int)sensor.getX();
 			int y = (int)sensor.getY();
 			int r = (int)sensor.getRange();
-			g.drawOval(x, y, 2 * r, 2 * r);
+			g.drawOval(x - r, y - r, 2 * r, 2 * r);
+//			g.drawLine(x - r, 850, x - r, 0);
+//			g.drawLine(x + r, 850, x + r, 0);
+		}
+		for(int i = 0; i < points.size(); i++){
+			Point point = points.get(i);
+			int x = (int)point.x;
+			if(point.sign == 0){
+				g.setColor(Color.black);
+				g.drawLine(x, 850, x, 0);
+			}else{
+				g.setColor(Color.RED);
+				g.drawLine(x, 850, x, 0);
+			}
+			
 		}
 	}
 }
