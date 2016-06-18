@@ -47,7 +47,11 @@ public class Sensor implements Comparable{
 	public int compareTo(Object o) {
 		// TODO Auto-generated method stub
 		Sensor sensor = (Sensor)o;
-		return (int)(this.x - sensor.x);
+		if(this.x > sensor.x){
+			return 1;
+		}else{
+			return -1;
+		}
 	}
 	
 }

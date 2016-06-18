@@ -2,6 +2,9 @@ package com.xjp.AlgPrj;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +37,7 @@ public class Handle {
 	}
 	//create several sensors
 	public void createSensor(){
-		int n = (int)(L/r);
+		int n = (int)(L/(2 * r)) + 5;
 		sensors = new ArrayList<Sensor>();
 		for(int i = 0; i < n; i++){
 			Sensor sensor = new Sensor();
@@ -50,12 +53,46 @@ public class Handle {
 		}
 	}
 	//print the information of each sensor
-	public void print(){
-		for(int i = 0; i < sensors.size(); i++){
-			Sensor sensor = sensors.get(i);
-			System.out.println("=============sensor  " + (i+1) +" =============");
-			System.out.println("location:  (" + sensor.x + "," + sensor.y + ")");
-			System.out.println("sensing range:   " + sensor.range);
+	public void print1(){
+//		for(int i = 0; i < sensors.size(); i++){
+//			Sensor sensor = sensors.get(i);
+//			System.out.println("=============sensor  " + (i+1) +" =============");
+//			System.out.println("location:  (" + sensor.x + "," + sensor.y + ")");
+//			System.out.println("sensing range:   " + sensor.range);
+//		}
+		FileWriter fileWriter;
+		try{
+			File f = new File("D:\\before.txt");
+			fileWriter = new FileWriter(f);
+			for(int i = 0; i < sensors.size(); i++){
+				Sensor sensor = sensors.get(i);
+				fileWriter.write(sensor.getX() + " " + sensor.getY() + "\r\n");
+			}
+			fileWriter.flush();
+			fileWriter.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	public void print2(){
+//		for(int i = 0; i < sensors.size(); i++){
+//			Sensor sensor = sensors.get(i);
+//			System.out.println("=============sensor  " + (i+1) +" =============");
+//			System.out.println("location:  (" + sensor.x + "," + sensor.y + ")");
+//			System.out.println("sensing range:   " + sensor.range);
+//		}
+		FileWriter fileWriter;
+		try{
+			File f = new File("D:\\after.txt");
+			fileWriter = new FileWriter(f);
+			for(int i = 0; i < sensors.size(); i++){
+				Sensor sensor = sensors.get(i);
+				fileWriter.write(sensor.getX() + " " + sensor.getY() + "\r\n");
+			}
+			fileWriter.flush();
+			fileWriter.close();
+		}catch(IOException e){
+			e.printStackTrace();
 		}
 	}
 	public void draw(){
@@ -65,7 +102,7 @@ public class Handle {
 		SensorPanel spanel = new SensorPanel();
 		spanel.setBounds(0, 0, 800, 800);
 		spanel.addSensor(sensors);
-		System.out.println("The first sensor is: " + sensors.get(0).getX());
+//		System.out.println("The first sensor is: " + sensors.get(0).getX());
 		findGap();
 		findOverLap();
 		spanel.addGaps(gaps);
@@ -126,6 +163,7 @@ public class Handle {
 			Gap gap = new Gap();
 			gap.left = 0;
 			gap.right = sensor.getLeft();
+			gap.size = Math.abs(gap.right - gap.left);
 			gaps.add(gap);
 		}
 		for(int i = 0; i < sensors.size() - 1; i++){
@@ -149,6 +187,7 @@ public class Handle {
 			Gap gap = new Gap();
 			gap.left = sensor2.getRight();
 			gap.right = L;
+			gap.size = Math.abs(gap.right - gap.left);
 			gaps.add(gap);
 		}
 	}
@@ -348,6 +387,7 @@ public class Handle {
 					gap.size -= c;
 					System.out.println("  to  " + gap.size);
 					overlap_left.size -= c;
+					overlap_left.left += c;
 //					for(int j = 0; j < sensors.size(); j++){
 //						Sensor sensor = sensors.get(j);
 //						double sensor_left = sensor.getLeft();
@@ -368,7 +408,7 @@ public class Handle {
 //							System.out.println("MOVE ONE");
 							System.out.println("A left sensor moved !!!");
 							now_sensor.x += c;
-							sensor.shift = c;
+							now_sensor.shift = c;
 						}
 					}
 					gap.left += c;
@@ -383,6 +423,7 @@ public class Handle {
 					gap.size -= c;
 					System.out.println("  to  " + gap.size);
 					overlap_right.size -= c;
+					overlap_right.right -= c;
 //					for(int j = 0; j < sensors.size(); j++){
 //						Sensor sensor = sensors.get(j);
 //						double sensor_left = sensor.getLeft();
@@ -402,7 +443,16 @@ public class Handle {
 						if(now_sensor.x >= start && now_sensor.x <= end){
 							System.out.println("A right sensor moved !!!");
 							now_sensor.x -= c;
-							sensor.shift = -c;
+							now_sensor.shift = -c;
+						}
+					}
+					for(int t = 1; t < gaps.size(); t++){
+						Gap now_gap = gaps.get(t);
+						double left = now_gap.left;
+						double right = now_gap.right;
+						if(left >= gleft && right <= sensor.getLeft()){
+							now_gap.left -= c;
+							now_gap.right -= c;
 						}
 					}
 					gap.right -= c;
@@ -428,17 +478,22 @@ public class Handle {
 		handle.r = 20;
 		handle.createSensor();
 		handle.sortSensor();
+		handle.findOverLap();
+		List<Overlap> overlaps = handle.overlaps;
+		for(int i = 0; i < overlaps.size(); i++){
+			System.out.println(overlaps.get(i).left + "  ,  " + overlaps.get(i).right);
+		}
 		handle.findGap();
 		List<Gap> gaps = handle.gaps;
 		System.out.println("The number of gaps is : " +gaps.size());
 		for(int i = 0; i < gaps.size(); i++){
 			System.out.println("Gap: " + gaps.get(i).left + " , " + gaps.get(i).right);
 		}
-		handle.draw();
-		handle.print();
+//		handle.draw();
+		handle.print1();
 		handle.WeakDetection();
 //		handle.moveSensor();
-		handle.print();
+		handle.print2();
 //		handle.draw();
 //		List<Point> points = handle.getPoints();
 //		System.out.println(points.size());
@@ -447,11 +502,6 @@ public class Handle {
 //		}
 //		handle.print();
 		
-		handle.findOverLap();
-		List<Overlap> overlaps = handle.overlaps;
-//		for(int i = 0; i < overlaps.size(); i++){
-//			System.out.println(overlaps.get(i).left + "  ,  " + overlaps.get(i).right);
-//		}
 		System.out.println("The number of overlaps is : " +overlaps.size());
 		
 	}
