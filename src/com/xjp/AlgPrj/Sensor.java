@@ -39,7 +39,7 @@ public class Sensor implements Comparable{
 	public boolean isOverlap(Sensor sensor){
 		double x = sensor.getX();
 		double y = sensor.getY();
-		if(Math.abs(this.x - x) <= 2 * range)return true;
+		if(Math.abs(this.x - x) < 2 * range - 0.1)return true;
 		else return false;
 	}
 	//compare the sensors based on their x value
