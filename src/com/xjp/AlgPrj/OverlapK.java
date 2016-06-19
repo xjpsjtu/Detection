@@ -7,6 +7,8 @@ public class OverlapK {
 	public double right;
 	public double size; 
 	public List<Sensor> coverSensors;
+	public int num;
+	public int l;
 	
 	public double getLeft(){
 		return left;
@@ -17,13 +19,16 @@ public class OverlapK {
 	public double getSize(){
 		return size;
 	}
-	public int getNum(){
-		return coverSensors.size();
-	}
 	public void addSensor(Sensor sensor){
 		coverSensors.add(sensor);
 	}
 	public List<Sensor> getCoverSensor(){
 		return coverSensors;
+	}
+	public int getNum(){
+		return num;
+	}
+	public int getL(){
+		return l;
 	}
 }

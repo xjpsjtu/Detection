@@ -475,7 +475,7 @@ public class Handle {
 	public static void main(String[] args){
 		Handle handle = new Handle();
 		handle.L = 800;
-		handle.r = 20;
+		handle.r = 5;
 		handle.createSensor();
 		handle.sortSensor();
 		handle.findOverLap();
@@ -491,6 +491,10 @@ public class Handle {
 		}
 //		handle.draw();
 		handle.print1();
+		handle.WeakDetection();
+		handle.sortSensor();
+		handle.findGap();
+		handle.findOverLap();
 		handle.WeakDetection();
 //		handle.moveSensor();
 		handle.print2();
