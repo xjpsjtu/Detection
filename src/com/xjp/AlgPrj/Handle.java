@@ -489,16 +489,17 @@ public class Handle {
 		for(int i = 0; i < gaps.size(); i++){
 			System.out.println("Gap: " + gaps.get(i).left + " , " + gaps.get(i).right);
 		}
-//		handle.draw();
-		handle.print1();
+		handle.draw();
+//		handle.print1();
 		handle.WeakDetection();
 		handle.sortSensor();
 		handle.findGap();
 		handle.findOverLap();
 		handle.WeakDetection();
+		handle.WeakDetection();
 //		handle.moveSensor();
-		handle.print2();
-//		handle.draw();
+//		handle.print2();
+		handle.draw();
 //		List<Point> points = handle.getPoints();
 //		System.out.println(points.size());
 //		for(int i = 0; i < points.size(); i++){
@@ -553,15 +554,15 @@ class SensorPanel extends JPanel{
 //			}
 //			
 //		}
-		for(int i = 0; i < gaps.size(); i++){
-			Gap gap = gaps.get(i);
-			int left = (int)gap.getLeft();
-			int right = (int)gap.getRight();
-			g.setColor(Color.black);
-			g.drawLine(left, 650, left, 0);
-			g.setColor(Color.RED);
-			g.drawLine(right, 650, right, 0);
-		}
+//		for(int i = 0; i < gaps.size(); i++){
+//			Gap gap = gaps.get(i);
+//			int left = (int)gap.getLeft();
+//			int right = (int)gap.getRight();
+//			g.setColor(Color.black);
+//			g.drawLine(left, 650, left, 0);
+//			g.setColor(Color.RED);
+//			g.drawLine(right, 650, right, 0);
+//		}
 //		for(int i = 0; i < overlaps.size(); i++){
 //			Overlap overlap = overlaps.get(i);
 //			int left = (int)overlap.getLeft();

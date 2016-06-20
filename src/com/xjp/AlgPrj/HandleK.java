@@ -22,7 +22,7 @@ public class HandleK {
 	public double ratio;
 	
 	public void createSensor(){
-		int n = (int)( L/(2 * r)) * (K+2);
+		int n = (int)(1.5 * L/(2 * r)) * (K + 2);
 		sensors = new ArrayList<Sensor>();
 		Sensor sensor = new Sensor();
 		sensor.x = -r;
@@ -35,7 +35,10 @@ public class HandleK {
 			double x = Math.random() * (L - 2 * r) +  r;
 			x = Math.rint(x);
 			double y = Math.random() * 300 + 300;
-			
+			if(i%4==0)y=400;
+			else if(i%4==1)y=300;
+			else if(i%4==2) y=200;
+			else y=100;
 			sensor.x = x;
 			sensor.y = y;
 			sensor.range = r;
@@ -424,9 +427,9 @@ public class HandleK {
 		handle.sortSensor();
 		handle.print1();
 		handle.draw();
-		handle.weakdectionk();
-		handle.weakdectionk();
-		handle.weakdectionk();
+		for(int i = 0; i < 20; i++){
+			handle.weakdectionk();
+		}
 		handle.draw();
 		handle.print2();
 	}
